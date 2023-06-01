@@ -1,9 +1,3 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
 import random
 
 # Create a deck of cards
@@ -11,14 +5,30 @@ def create_deck(suit_quantity):
     deck = []
     suits = ['♠', '♥', '♦', '♣']
     ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-    for i in range(4 * (5 - suit_quantity)):
+    k = 2
+    if suit_quantity == 1:
+        k  = 8
+    elif suit_quantity == 2:
+        k = 4
+    elif suit_quantity == 4:
+        k = 2
+
+    for i in range(k):
+    #for i in range(2 * (5 - suit_quantity)):
         for j in range(suit_quantity):
 
         #for suit in suits:
             for rank in ranks:
                 #deck.append(rank + suit)
                 deck.append(rank + suits[j])
-    #print (deck)
+
+
+    if suit_quantity == 3:
+        for rank in ranks:
+            deck.append(rank + suits[0])
+            deck.append(rank + suits[1])
+
+    #print("Deck length", len(deck))
 
     return deck
 
@@ -45,10 +55,12 @@ def deal_cards(deck):
     #for i in range(4):
     #    for j in range(10):
     #        tableau[j].append(deck.pop(0))
-    return tableau
+    return tableau, deck
 
 # Display the tableau
-def display_tableau(tableau):
+def display_tableau(tableau, deck):
+    print ("Deals left in deck ", int(len(deck)/10))
+
     print ("____0_____1_____2_____3_____4_____5_____6_____7_____8_____9_____10 ")
     i = 0
     for row in tableau:
@@ -63,40 +75,42 @@ def play_spider_solitaire():
 
     deck = create_deck(suits_quantity)
     shuffle_deck(deck)
-    tableau = deal_cards(deck)
+    tableau, deck = deal_cards(deck)
     while True:
         # Display the tableau
-        display_tableau(tableau)
+        display_tableau(tableau, deck)
 
         # Get user input
-        move = input("Enter your move (format: [source_row_index] [source_card_index] [destination_row_index]): NO COMMAS, just spaces ")
+        move = input("Enter your move (format: [source_row_index] [source_card_index] [destination_row_index]): NO COMMAS, just spaces, or  deal or quit ")
         if move == 'quit':
             break
+        if move == 'deal':
+            nextDeal(tableau, deck)
+        else:
+            # Parse the user input
+            source_row, source_card, destination_row = map(int, move.split())
 
-        # Parse the user input
-        source_row, source_card, destination_row = map(int, move.split())
+            # Perform the move
+            try:
+                card = tableau[source_row][source_card]
+                print ("first card to move", card, card[:-1])
 
-        # Perform the move
-        try:
-            card = tableau[source_row][source_card]
-            print ("first card to move", card, card[:-1])
+                if len(tableau[destination_row]) != 0:
+                    print ("destination card to go on top of", tableau[destination_row][-1])
+                else:
+                    print ("destination row is blank")
 
-            if len(tableau[destination_row]) != 0:
-                print ("destination card to go on top of", tableau[destination_row][-1])
-            else:
-                print ("destination row is blank")
+                if check_valid_source(tableau, source_row, source_card) and \
+                        check_valid_destination(tableau, destination_row, card):
 
-            if check_valid_source(tableau, source_row, source_card) and \
-                    check_valid_destination(tableau, destination_row, card):
-
-                for i in range(source_card, len(tableau[source_row])):
-                    #tableau[source_row].pop(source_card)
-                    this_card = tableau[source_row].pop(source_card)
-                    tableau[destination_row].append(this_card)
-            else:
-                print ("Move is not valid, choose again")
-        except:
-            print ("Move not valid, exception")
+                    for i in range(source_card, len(tableau[source_row])):
+                        #tableau[source_row].pop(source_card)
+                        this_card = tableau[source_row].pop(source_card)
+                        tableau[destination_row].append(this_card)
+                else:
+                    print ("Move is not valid, choose again")
+            except:
+                print ("Move not valid, exception")
 
 
 def check_valid_source(tableau, source_row, source_card):
@@ -153,6 +167,15 @@ def integer_rank(rank):
             return 12
         case 'K':
             return 13
+
+def nextDeal(tableau, deck):
+    if len(deck) != 0:
+        for i in range(10):
+            tableau[i].append(deck.pop(0))
+    else:
+        print ("Deck is empty")
+    return tableau, deck
+
 
 # Start the game
 play_spider_solitaire()
