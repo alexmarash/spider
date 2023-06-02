@@ -1,3 +1,4 @@
+import copy
 import random
 
 # Create a deck of cards
@@ -74,32 +75,38 @@ def play_spider_solitaire():
 
     suits_quantity = int(input("Choose how many suits "))
 
-
-
-
     deck = create_deck(suits_quantity)
     shuffle_deck(deck)
     tableau, deck = deal_cards(deck)
+    undoCopy = copy.deepcopy(tableau)
+
     while gameRunning:
         # Display the tableau
         display_tableau(tableau, deck)
 
         # Get user input
         move = input("Enter your move (format: [source_row_index] [source_card_index] [destination_row_index]): NO COMMAS, just spaces, or  deal or quit ")
+
         if move == 'quit':
             gameRunning = False
-        if move == 'deal':
+        elif move == 'deal':
             nextDeal(tableau, deck)
-        else:
-            # Parse the user input
-            source_row, source_card, destination_row = map(int, move.split())
+        elif move == 'undo':
+            tableau = undoCopy
+        elif move == 'pick' or len(move.split()) == 3:
 
-            if source_row > 10 or destination_row > 10 or source_card > len(tableau[source_row]):
+            if move == 'pick':
+                source_row, source_card, destination_row = makeRandomMove(tableau)
+            else:
+            # Parse the user input
+                source_row, source_card, destination_row = map(int, move.split())
+
+            if source_row > 10 or destination_row > 10 or source_card >= len(tableau[source_row]):
                 print ("Move is not valid 1")
             else:
             # Perform the move
                 card = tableau[source_row][source_card]
-                print ("first card to move", card, card[:-1])
+                print ("first card to move", card)
 
                 if len(tableau[destination_row]) != 0:
                     print ("destination card to go on top of", tableau[destination_row][-1])
@@ -113,7 +120,8 @@ def play_spider_solitaire():
                         #tableau[source_row].pop(source_card)
                         this_card = tableau[source_row].pop(source_card)
                         tableau[destination_row].append(this_card)
-
+                else:
+                    print ("Not a correct source or destination")
 
                 #rowComplete = isRowComplete(tableau, destination_row)
                 if isRowComplete(tableau, destination_row):
@@ -122,8 +130,11 @@ def play_spider_solitaire():
                         print ("WINNER WINNER CHICKEN DINNER")
                         gameRunning = False
 
-                else:
-                    print ("Move is not valid, choose again")
+            undoCopy = copy.deepcopy(tableau)
+        else:
+            print("Not enough inputs, or not a valid input")
+                #else:
+                #    print ("Move is not valid, choose again")
 
 def check_valid_source(tableau, source_row, source_card):
     valid_move = True
@@ -131,8 +142,9 @@ def check_valid_source(tableau, source_row, source_card):
         if integer_rank(tableau[source_row][i][:-1]) != integer_rank(tableau[source_row][i + 1][:-1]) + 1 or \
             tableau[source_row][i][-1] != tableau[source_row][i + 1][-1]:
             valid_move = False
+            #print ("Not a valid source")
 
-    print ("valid source ", valid_move )
+    #print ("valid source ", valid_move )
 
     return valid_move
 
@@ -142,12 +154,13 @@ def check_valid_destination(tableau, destination_row, card):
     if len(tableau[destination_row]) == 0:
         return valid_move
 
-    print (integer_rank(card[:-1]), integer_rank(tableau[destination_row][-1][:-1]))
+    #print (integer_rank(card[:-1]), integer_rank(tableau[destination_row][-1][:-1]))
 
     if integer_rank(card[:-1]) != integer_rank(tableau[destination_row][-1][:-1]) - 1:
         valid_move = False
+        #print ("Not a valid destination")
 
-    print ("valid destination ", valid_move)
+    #print ("valid destination ", valid_move)
 
     return valid_move
 
@@ -155,7 +168,11 @@ def isRowComplete(tableau, destination_row):
     if len(tableau[destination_row]) < 13 or integer_rank(tableau[destination_row][-1][:-1]) != 1:
         return False
 
+
     for i in range(len(tableau[destination_row]) - 1, len(tableau[destination_row]) - 13, -1):
+
+        print (tableau[destination_row][i], tableau[destination_row][i - 1])
+
         if tableau[destination_row][i][-1] != tableau[destination_row][i - 1][-1]:
             return False
         elif integer_rank(tableau[destination_row][i][-1]) != integer_rank(tableau[destination_row][i - 1][-1]) - 1:
@@ -213,8 +230,26 @@ def nextDeal(tableau, deck):
         print ("Deck is empty")
     return tableau, deck
 
+def makeRandomMove(tableau):
+    choosingMove = True
+    while choosingMove:
+        randomSourceRow = random.randint(0, 9)
+        randomSourceCard = random.randint(0, len(tableau[randomSourceRow]) - 1)
+        choosingDestination = True
+        while choosingDestination:
+            randomDestinationRow = random.randint(0, 9)
+            if randomDestinationRow != randomSourceRow:
+                choosingDestination = False
 
+        #print (randomSourceRow, randomSourceCard, randomDestinationRow)
 
+        card = tableau[randomSourceRow][randomSourceCard]
+        if check_valid_destination(tableau, randomDestinationRow, card) and \
+                check_valid_source(tableau, randomSourceRow, randomSourceCard):
+            choosingMove = False
+
+    print (randomSourceRow, randomSourceCard, randomDestinationRow)
+    return randomSourceRow, randomSourceCard, randomDestinationRow
 
 
 # Start the game
