@@ -94,7 +94,7 @@ def play_spider_solitaire():
         elif move == 'undo':
             tableau = undoCopy
         elif move == 'pick' or len(move.split()) == 3:
-
+            undoCopy = copy.deepcopy(tableau)
             if move == 'pick':
                 source_row, source_card, destination_row = makeRandomMove(tableau)
             else:
@@ -130,11 +130,15 @@ def play_spider_solitaire():
                         print ("WINNER WINNER CHICKEN DINNER")
                         gameRunning = False
 
-            undoCopy = copy.deepcopy(tableau)
+
         else:
             print("Not enough inputs, or not a valid input")
                 #else:
                 #    print ("Move is not valid, choose again")
+
+
+
+
 
 def check_valid_source(tableau, source_row, source_card):
     valid_move = True
