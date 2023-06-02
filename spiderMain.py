@@ -70,28 +70,34 @@ def display_tableau(tableau, deck):
 # Main game loop
 def play_spider_solitaire():
 
+    gameRunning = True
+
     suits_quantity = int(input("Choose how many suits "))
+
+
 
 
     deck = create_deck(suits_quantity)
     shuffle_deck(deck)
     tableau, deck = deal_cards(deck)
-    while True:
+    while gameRunning:
         # Display the tableau
         display_tableau(tableau, deck)
 
         # Get user input
         move = input("Enter your move (format: [source_row_index] [source_card_index] [destination_row_index]): NO COMMAS, just spaces, or  deal or quit ")
         if move == 'quit':
-            break
+            gameRunning = False
         if move == 'deal':
             nextDeal(tableau, deck)
         else:
             # Parse the user input
             source_row, source_card, destination_row = map(int, move.split())
 
+            if source_row > 10 or destination_row > 10 or source_card > len(tableau[source_row]):
+                print ("Move is not valid 1")
+            else:
             # Perform the move
-            try:
                 card = tableau[source_row][source_card]
                 print ("first card to move", card, card[:-1])
 
@@ -114,13 +120,10 @@ def play_spider_solitaire():
                     tableau = removeRow(tableau, destination_row)
                     if checkForWin(tableau):
                         print ("WINNER WINNER CHICKEN DINNER")
-                        break
+                        gameRunning = False
 
                 else:
                     print ("Move is not valid, choose again")
-            except:
-                print ("Move not valid, exception")
-
 
 def check_valid_source(tableau, source_row, source_card):
     valid_move = True
