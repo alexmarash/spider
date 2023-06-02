@@ -109,10 +109,12 @@ def play_spider_solitaire():
                         tableau[destination_row].append(this_card)
 
 
-                rowComplete, startCard = isRowComplete(tableau, destination_row)
-                if rowComplete:
-                    tableau = removeRow(tableau, destination_row, startCard)
-
+                #rowComplete = isRowComplete(tableau, destination_row)
+                if isRowComplete(tableau, destination_row):
+                    tableau = removeRow(tableau, destination_row)
+                    if checkForWin(tableau):
+                        print ("WINNER WINNER CHICKEN DINNER")
+                        break
 
                 else:
                     print ("Move is not valid, choose again")
@@ -145,6 +147,31 @@ def check_valid_destination(tableau, destination_row, card):
     print ("valid destination ", valid_move)
 
     return valid_move
+
+def isRowComplete(tableau, destination_row):
+    if len(tableau[destination_row]) < 13 or integer_rank(tableau[destination_row][-1][:-1]) != 1:
+        return False
+
+    for i in range(len(tableau[destination_row]) - 1, len(tableau[destination_row]) - 13, -1):
+        if tableau[destination_row][i][-1] != tableau[destination_row][i - 1][-1]:
+            return False
+        elif integer_rank(tableau[destination_row][i][-1]) != integer_rank(tableau[destination_row][i - 1][-1]) - 1:
+            return False
+
+    return True
+
+def removeRow(tableau, destination_row):
+    for i in range(13):
+        tableau[destination_row].pop()
+
+    return tableau
+
+def checkForWin(tableau):
+    win = True
+    for row in tableau:
+        if len(row) > 0:
+            win = False
+    return win
 
 def integer_rank(rank):
     match rank:
@@ -184,24 +211,8 @@ def nextDeal(tableau, deck):
     return tableau, deck
 
 
-def isRowComplete(tableau, destination_row):
-    rowComplete = False
-    startCard = 0
 
-    if len(tableau[destination_row]) < 13 or integer_rank(tableau[destination_row][-1][:-1]) != 1:
-        return False, 0
 
-    for i in range(len(tableau[destination_row]) - 1, -1, -1):
-        if tableau[destination_row[i][-1] != tableau[destination_row][i - 1][-1]:
-            return False, 0
-        elif integer_rank(tableau[destination_row[i][-1]) != integer_rank(tableau[destination_row][i - 1][-1]) - 1:
-            return False, 0
-
-    return rowComplete, startCard
-
-def removeRow(tableau, destination_row, start_card):
-
-    return tableau
 
 # Start the game
 play_spider_solitaire()
