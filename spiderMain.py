@@ -107,6 +107,13 @@ def play_spider_solitaire():
                         #tableau[source_row].pop(source_card)
                         this_card = tableau[source_row].pop(source_card)
                         tableau[destination_row].append(this_card)
+
+
+                rowComplete, startCard = isRowComplete(tableau, destination_row)
+                if rowComplete:
+                    tableau = removeRow(tableau, destination_row, startCard)
+
+
                 else:
                     print ("Move is not valid, choose again")
             except:
@@ -176,6 +183,25 @@ def nextDeal(tableau, deck):
         print ("Deck is empty")
     return tableau, deck
 
+
+def isRowComplete(tableau, destination_row):
+    rowComplete = False
+    startCard = 0
+
+    if len(tableau[destination_row]) < 13 or integer_rank(tableau[destination_row][-1][:-1]) != 1:
+        return False, 0
+
+    for i in range(len(tableau[destination_row]) - 1, -1, -1):
+        if tableau[destination_row[i][-1] != tableau[destination_row][i - 1][-1]:
+            return False, 0
+        elif integer_rank(tableau[destination_row[i][-1]) != integer_rank(tableau[destination_row][i - 1][-1]) - 1:
+            return False, 0
+
+    return rowComplete, startCard
+
+def removeRow(tableau, destination_row, start_card):
+
+    return tableau
 
 # Start the game
 play_spider_solitaire()
